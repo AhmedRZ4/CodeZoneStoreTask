@@ -1,0 +1,99 @@
+﻿@model IEnumerable<CodeZoneStoreTask.Models.Item>
+<h1 class="fs-3">Items</h1>
+@{
+    var allitem = Model;
+}
+<section class="container">
+    <div class="row">
+        <div class="col-md-8 offset-md-2 pt-1">
+            <form id="addF" asp-controller="Item" asp-action="Add" method="post" class="input-group mb-3">
+                <input id="itemID" type="text" name="itemName" class="form-control col-7" placeholder="Enter Item Name" required />
+                <button type="submit" class="btn btn-outline-primary col-1">Add</button>
+                <div id="validate" class="ps-3 invalid-feedback">Please Enter a Item Name</div>
+            </form>
+        </div>
+    </div>
+    <div class="row ">
+        <table class="table w-50 m-auto">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>@item.itemName</td>
+                        <td class="d-flex">
+                            <a class="btn btn-outline-primary" onclick='edit(@Html.Raw(System.Text.Json.JsonSerializer.Serialize(item)))' data-bs-toggle="modal" data-bs-target="#exampleModal">Edit</a> |
+                            <form asp-controller="Item" asp-action="Delete" method="post">
+                                <input type="hidden" asp-for="@item.itemId" name="id" />
+                                <input type="submit" value="Delete" class="btn btn-danger btn-block" />
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+    <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h1 class="modal-title fs-5" id="exampleModalLabel">Update</h1>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form asp-controller="Item" asp-action="Edit" method="post">
+                    <div class="modal-body">
+                        <input id="iname" type="text" name="itemName" placeholder="Please Enter a Item Name" class="form-control" required />
+                    </div>
+                    <div class="modal-footer">
+                        <input type="hidden" name="id" id="iId" />
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                        <button type="submit" class="btn btn-primary">Save changes</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</section>
+<script>
+    document.getElementById("addF").addEventListener("submit", (event) => {
+
+        const iId = document.getElementById("itemID");
+        const it = @Html.Raw(Json.Serialize(allitem));
+        let check = false;
+        it.forEach(item => {
+            if (iId.value == item.itemName) {
+                check = true;
+            }
+        });
+        if (check) {
+            event.preventDefault();
+            window.alert("Item name is already used.");
+        }
+    });
+
+    const itemName = document.querySelector(".form-control");
+    const validate = document.querySelector("#validate");
+    function edit(item) {
+        const myModal = document.getElementById('exampleModal');
+        const mess = document.getElementById("iname");
+        mess.value = item.itemName;
+        const id = document.querySelector("#iId");
+        id.value = item.itemId;
+        myModal.show();
+    }
+    itemName.addEventListener("keyup", () => {
+        if (itemName.value.trim() == "") {
+            validate.classList.remove("d-none");
+            validate.classList.add("d-block");
+        } else {
+            validate.classList.remove("d-block");
+            validate.classList.add("d-none");
+        }
+    });
+</script>
+

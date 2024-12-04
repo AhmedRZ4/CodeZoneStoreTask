@@ -1,0 +1,64 @@
+﻿@model IEnumerable<CodeZoneStoreTask.Models.Purchase>
+<h1>Sell</h1>
+
+<form id="addf" asp-controller="Sell" asp-action="add" method="post" class="w-50">
+    <div class="mb-3">
+        <label for="itemId" class="form-label">Select Item</label>
+        <select id="itemId" name="itemId" class="form-select" required>
+            @foreach (var item in ViewBag.Items)
+            {
+                <option value="@item.Value">@item.Text</option>
+            }
+        </select>
+    </div>
+
+    <div class="mb-3">
+        <label for="storeId" class="form-label">Select Store</label>
+        <select id="storeId" name="storeId" class="form-select" required>
+            @foreach (var store in ViewBag.Stores)
+            {
+                <option value="@store.Value">@store.Text</option>
+            }
+        </select>
+    </div>
+    <div class="mb-3">
+        <label for="quantityS" class="form-label">Quantity in stock</label>
+        <input  id="quantityP"  class="form-control" readonly />
+    </div>
+    <div class="mb-3">
+        <label for="quantityS" class="form-label">Quantity</label>
+        <input type="number" id="quantityS" name="quantityP" class="form-control" min="1" required />
+    </div>
+
+    <button type="submit" class="btn btn-primary">Add</button>
+</form>
+<script>
+    var purch = @Html.Raw(Json.Serialize(Model));
+    const quantity = document.getElementById("quantityP");
+    const store = document.getElementById("storeId");
+    const item = document.getElementById("itemId");
+    console.log(purch);
+    if (purch != null) {
+        store.value = purch[0].storeId;
+        item.value = purch[0].itemId;
+        quantity.value = purch[0].quantityP;
+
+        item.addEventListener("change", (event) => {
+            purch.forEach(purchase => {
+                if (purchase.itemId == event.currentTarget.value && purchase.storeId == store.value) {
+                    quantity.value = purchase.quantityP;
+                }
+                else {
+                    quantity.value = "0";
+                }
+            });
+        });
+        store.addEventListener("change", (event) => {
+            purch.forEach(purchase => {
+                if (purchase.storeId == event.currentTarget.value && purchase.itemId == item.value) {
+                    quantity.value = "0";
+                }
+            });
+        });
+    }
+</script>
